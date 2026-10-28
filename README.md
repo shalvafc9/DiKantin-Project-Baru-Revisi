@@ -20,6 +20,7 @@ Tidak perlu memasang npm atau server backend.
 5. Tambahkan menu ke keranjang, lalu lanjutkan ke pembayaran QRIS demo.
 6. Simulasikan pembayaran, lihat pelacakan, dan isi ulasan.
 7. Tombol **Profil** di navigasi bawah membuka profil demo Budi Santos.
+8. Di halaman awal, buka **Pemilik tenant** untuk mengelola pesanan dan melihat laporan bulanan Premium, atau **Pengelola** untuk memantau ringkasan aktivitas seluruh tenant.
 
 Navigasi bawah hanya menampilkan **Beranda** dan **Profil**. Tombol lokasi Kantin Pusat di header beranda sudah dihilangkan.
 
@@ -33,4 +34,4 @@ Navigasi bawah hanya menampilkan **Beranda** dan **Profil**. Tombol lokasi Kanti
 
 ## Batasan demo
 
-Login, scan QR, pembayaran QRIS, pelacakan, dan ulasan hanya simulasi di browser. Profil menggunakan data contoh Budi Santos dan NIM 2504. Kode QR pada halaman pembayaran tidak dapat dipindai dan tidak melakukan transaksi.
+Login, scan QR, pembayaran QRIS, pelacakan, ulasan, dashboard tenant, dashboard pengelola, dan Premium hanya simulasi di browser. Data pesanan dan laporan adalah data contoh. Perubahan status dan aktivasi Premium tidak tersimpan ke server atau memproses pembayaran sungguhan. Prototipe ini belum memakai autentikasi atau backend, sehingga dashboard pengelola belum dibatasi untuk akun tertentu. Profil menggunakan data contoh Budi Santos dan NIM 2504. Kode QR pada halaman pembayaran tidak dapat dipindai dan tidak melakukan transaksi.

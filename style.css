@@ -583,6 +583,93 @@ p { margin-bottom: 0; }
 .empty-state .icon { display: grid; width: 50px; height: 50px; margin: 0 auto 10px; place-items: center; border-radius: 16px; color: var(--green); background: var(--green-pale); }
 .empty-state strong { display: block; margin-bottom: 5px; color: var(--ink-soft); font-size: 13px; }
 
+/* Portal tenant dan pengelola */
+.role-entry { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; min-width: 0; margin-top: 11px; padding: 10px 11px; }
+.role-entry-title { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.role-entry-title strong { color: var(--ink-soft); font-size: 11px; white-space: nowrap; }
+.role-entry-demo { padding: 3px 6px; border-radius: 20px; color: var(--muted); background: #f5f3f1; font-size: 8px; font-weight: 750; }
+.role-entry-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; width: 100%; min-width: 0; }
+.role-entry-actions .button { width: 100%; min-width: 0; min-height: 34px; margin: 0; padding: 6px 8px; border-radius: 10px; font-size: 9px; }
+.dashboard-page { padding-bottom: 30px; }
+.dashboard-page .topbar { margin-bottom: 18px; }
+.dashboard-logout { flex: 0 0 auto; font-size: 12px; }
+.dashboard-hero { margin: 3px 0 17px; }
+.dashboard-hero h1 { margin-bottom: 7px; font-size: 27px; }
+.dashboard-hero p { max-width: 350px; color: var(--muted); font-size: 12px; line-height: 1.55; }
+.dashboard-select-label { display: grid; gap: 7px; margin-bottom: 12px; color: var(--ink-soft); font-size: 11px; font-weight: 750; }
+.dashboard-select { width: 100%; min-height: 45px; padding: 0 12px; border: 1px solid var(--line); border-radius: 13px; color: var(--ink); background: #fff; font-size: 12px; }
+.dashboard-context { display: flex; align-items: center; gap: 10px; padding: 12px; border-radius: 14px; background: var(--green-pale); }
+.dashboard-context > span:last-child { display: grid; min-width: 0; gap: 3px; }
+.dashboard-context strong { overflow: hidden; color: var(--green-dark); font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
+.dashboard-context small { color: #547768; font-size: 9px; }
+.demo-notice { display: flex; align-items: flex-start; gap: 8px; margin: 12px 0 15px; padding: 11px; border: 1px solid #f1e5bd; border-radius: 13px; color: #786132; background: #fff9e8; font-size: 9px; line-height: 1.5; }
+.demo-notice .icon { flex: 0 0 auto; margin-top: 1px; }
+.demo-notice .icon svg { width: 15px; height: 15px; }
+.dashboard-metrics { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; }
+.metric-card { display: grid; align-content: start; gap: 5px; min-width: 0; padding: 13px; }
+.metric-card > span { color: var(--muted); font-size: 9px; line-height: 1.35; }
+.metric-card > strong { overflow-wrap: anywhere; color: var(--green-dark); font-size: 18px; line-height: 1.2; }
+.metric-card > small { color: var(--muted); font-size: 8px; line-height: 1.4; }
+.dashboard-section { margin-top: 22px; }
+.dashboard-section .section-head { align-items: flex-start; }
+.dashboard-order-list { display: grid; gap: 10px; }
+.dashboard-order { padding: 12px; }
+.order-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+.order-heading > div { display: grid; gap: 4px; min-width: 0; }
+.order-heading > div strong { color: var(--ink-soft); font-size: 11px; }
+.order-heading > div span { color: var(--muted); font-size: 8px; line-height: 1.4; }
+.status-pill { flex: 0 0 auto; padding: 5px 8px; border-radius: 20px; font-size: 8px; font-weight: 800; }
+.status-pending { color: #885400; background: #fff2d5; }
+.status-working { color: #245d9c; background: #eaf3ff; }
+.status-ready { color: #006c49; background: #e5f5ec; }
+.status-done { color: #66616e; background: #f0eef3; }
+.status-rejected { color: #a03d31; background: #fff0ed; }
+.order-tenant-name { margin-top: 9px; color: var(--ink-soft); font-size: 10px; font-weight: 800; line-height: 1.45; }
+.order-tenant-name span { color: var(--muted); font-weight: 500; }
+.order-item-list { margin-top: 9px; color: var(--muted); font-size: 10px; line-height: 1.45; }
+.order-bottom { display: flex; justify-content: space-between; gap: 8px; margin-top: 10px; padding-top: 9px; border-top: 1px solid var(--line); color: var(--muted); font-size: 9px; }
+.order-bottom strong { color: var(--ink-soft); font-size: 10px; }
+.order-action-row { display: flex; align-items: center; gap: 13px; margin-top: 10px; }
+.order-action-row .button { width: auto; min-height: 34px; padding: 7px 11px; border-radius: 10px; font-size: 9px; }
+.reject-order { color: #a03d31; }
+.premium-section { margin-top: 23px; }
+.premium-badge { flex: 0 0 auto; padding: 5px 8px; border-radius: 20px; color: #835200; background: #fff1cd; font-size: 8px; font-weight: 850; letter-spacing: .35px; }
+.premium-lock-card { display: grid; gap: 10px; padding: 15px; }
+.premium-lock-icon { display: grid; width: 40px; height: 40px; place-items: center; border-radius: 13px; color: #8b5a00; background: #fff1cd; }
+.premium-lock-icon svg { width: 20px; height: 20px; }
+.premium-lock-copy strong { color: var(--ink-soft); font-size: 12px; }
+.premium-lock-copy p { margin-top: 5px; color: var(--muted); font-size: 10px; line-height: 1.55; }
+.premium-lock-card > small { color: var(--muted); font-size: 8px; text-align: center; }
+.premium-report { padding: 15px; }
+.premium-report-top { display: flex; justify-content: space-between; gap: 8px; }
+.premium-report-top > div { display: grid; gap: 5px; }
+.premium-report-top > div span, .report-stats span, .best-seller-row span { color: var(--muted); font-size: 9px; }
+.premium-report-top > div strong { color: var(--green-dark); font-size: 22px; }
+.report-trend { align-self: flex-start; padding: 6px 8px; border-radius: 20px; color: var(--green); background: var(--green-pale); font-size: 9px; font-weight: 800; }
+.report-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 14px; padding: 11px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.report-stats > div { display: grid; gap: 4px; }
+.report-stats strong { color: var(--ink-soft); font-size: 11px; }
+.report-chart-heading { display: grid; gap: 4px; margin-top: 13px; }
+.report-chart-heading strong { font-size: 10px; }
+.report-chart-heading span { color: var(--muted); font-size: 8px; }
+.report-chart { display: flex; align-items: flex-end; justify-content: space-around; gap: 7px; height: 90px; margin-top: 12px; padding: 0 4px; border-bottom: 1px solid var(--line); }
+.report-bar-column { display: grid; justify-items: center; align-content: end; gap: 5px; height: 100%; color: var(--muted); font-size: 7px; }
+.report-bar { width: 19px; min-height: 8px; border-radius: 6px 6px 0 0; background: linear-gradient(180deg, #35a878, var(--green)); }
+.best-seller-row { display: flex; justify-content: space-between; gap: 10px; margin-top: 12px; }
+.best-seller-row strong { max-width: 62%; color: var(--ink-soft); font-size: 9px; text-align: right; }
+.premium-manage { display: block; margin: 13px auto 0; }
+.manager-metrics { margin-top: 1px; }
+.manager-tenant-list { display: grid; gap: 8px; }
+.manager-tenant-card { display: flex; align-items: center; width: 100%; gap: 9px; padding: 11px; text-align: left; cursor: pointer; }
+.manager-tenant-mark { display: grid; width: 34px; height: 34px; flex: 0 0 auto; place-items: center; border-radius: 11px; color: var(--green); background: var(--green-pale); font-size: 13px; font-weight: 850; }
+.manager-tenant-copy { display: grid; flex: 1; min-width: 0; gap: 4px; }
+.manager-tenant-copy strong { overflow: hidden; color: var(--ink-soft); font-size: 9px; text-overflow: ellipsis; white-space: nowrap; }
+.manager-tenant-copy small { overflow: hidden; color: var(--muted); font-size: 7px; text-overflow: ellipsis; white-space: nowrap; }
+.manager-tenant-sales { display: grid; flex: 0 0 auto; gap: 4px; text-align: right; }
+.manager-tenant-sales strong { color: var(--green-dark); font-size: 8px; }
+.manager-tenant-sales small { color: var(--muted); font-size: 7px; }
+.manager-tenant-card > .icon svg { width: 15px; height: 15px; }
+
 @media (min-width: 431px) {
   .app-shell { border-radius: 26px; margin-top: 16px; margin-bottom: 16px; min-height: calc(100dvh - 32px); }
   .bottom-nav { bottom: 16px; border-radius: 0 0 26px 26px; }

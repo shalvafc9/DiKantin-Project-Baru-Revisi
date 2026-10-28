@@ -18,6 +18,10 @@ const state = {
   flash: false,
   voucherActive: true,
   selectedRatings: [],
+  providerTenantIndex: 0,
+  managerTenantFilter: "semua",
+  premiumTenantIndices: [],
+  currentDemoOrderId: null,
   cart: { paket: 1, teh: 1, tahu: 1 },
 };
 
@@ -77,10 +81,67 @@ const canteens = [
 ];
 
 const tenants = [
-  { name: "Ayam Geprek Mas Agus", description: "Sambal uleg segar & ayam renyah", rating: "4.9", time: "10–15 mnt", price: "Rp14.000–25.000", image: "assets/geprek-komplit.png", tag: "Paling laris", status: "Buka" },
-  { name: "Soto Seger Mbak Siti", description: "Soto ayam bening khas rumahan", rating: "4.8", time: "5–8 mnt", price: "Rp12.000–22.000", image: "assets/ayam-geprek.png", tag: "Favorit", status: "Buka" },
-  { name: "Warung Nasi Padang Sabana", description: "Rendang, gulai kikil & sambal", rating: "4.9", time: "5–10 mnt", price: "Rp15.000–28.000", image: "assets/nasi-goreng.png", tag: "Menu berat", status: "Buka" },
-  { name: "Kopi Mahasiswa & Toast", description: "Kopi susu gula aren dan roti bakar", rating: "4.7", time: "5–7 mnt", price: "Rp8.000–18.000", image: "assets/makan-di-kantin.png", tag: "Minuman", status: "Buka" },
+  { name: "Ayam Geprek Mas Agus", description: "Sambal uleg segar & ayam renyah", rating: "4.9", time: "10–15 mnt", price: "Rp14.000–25.000", image: "assets/geprek-komplit.png", tag: "Paling laris", status: "Buka", canteenIndex: 0 },
+  { name: "Soto Seger Mbak Siti", description: "Soto ayam bening khas rumahan", rating: "4.8", time: "5–8 mnt", price: "Rp12.000–22.000", image: "assets/ayam-geprek.png", tag: "Favorit", status: "Buka", canteenIndex: 1 },
+  { name: "Warung Nasi Padang Sabana", description: "Rendang, gulai kikil & sambal", rating: "4.9", time: "5–10 mnt", price: "Rp15.000–28.000", image: "assets/nasi-goreng.png", tag: "Menu berat", status: "Buka", canteenIndex: 2 },
+  { name: "Kopi Mahasiswa & Toast", description: "Kopi susu gula aren dan roti bakar", rating: "4.7", time: "5–7 mnt", price: "Rp8.000–18.000", image: "assets/makan-di-kantin.png", tag: "Minuman", status: "Buka", canteenIndex: 3 },
+];
+
+const demoOrders = [
+  { id: "DKT-1048", tenantIndex: 0, itemCount: 2, items: "2 × Paket Geprek Keju Mozarella", amount: 44000, status: "Menunggu", service: "Makan di tempat · Meja 14", time: "12.42" },
+  { id: "DKT-1047", tenantIndex: 0, itemCount: 1, items: "1 × Paket Geprek Keju Mozarella", amount: 22000, status: "Diproses", service: "Ambil sendiri", time: "12.36" },
+  { id: "DKT-1046", tenantIndex: 0, itemCount: 2, items: "1 × Es Teh Kampul Jumbo · 1 × Tahu Krispi", amount: 11000, status: "Siap diambil", service: "Ambil sendiri", time: "12.28" },
+  { id: "DKT-1045", tenantIndex: 0, itemCount: 1, items: "1 × Paket Geprek Keju Mozarella", amount: 22000, status: "Selesai", service: "Makan di tempat · Meja 8", time: "12.10" },
+  { id: "DKT-1044", tenantIndex: 1, itemCount: 2, items: "2 × Soto Ayam Spesial", amount: 36000, status: "Diproses", service: "Makan di tempat · Meja 6", time: "12.40" },
+  { id: "DKT-1043", tenantIndex: 1, itemCount: 1, items: "1 × Soto Ayam Spesial", amount: 18000, status: "Selesai", service: "Ambil sendiri", time: "12.16" },
+  { id: "DKT-1042", tenantIndex: 2, itemCount: 2, items: "1 × Nasi Padang Rendang · 1 × Es Teh", amount: 33000, status: "Menunggu", service: "Makan di tempat · Meja 3", time: "12.39" },
+  { id: "DKT-1041", tenantIndex: 2, itemCount: 1, items: "1 × Nasi Padang Ayam", amount: 20000, status: "Selesai", service: "Ambil sendiri", time: "12.05" },
+  { id: "DKT-1040", tenantIndex: 3, itemCount: 2, items: "2 × Kopi Susu Gula Aren", amount: 30000, status: "Siap diambil", service: "Ambil sendiri", time: "12.34" },
+  { id: "DKT-1039", tenantIndex: 3, itemCount: 1, items: "1 × Roti Bakar Cokelat", amount: 16000, status: "Selesai", service: "Makan di tempat · Meja 2", time: "11.58" },
+];
+
+const demoOrderStorageKey = "dikantin-demo-orders-v1";
+const validOrderStatuses = ["Menunggu", "Diproses", "Siap diambil", "Selesai", "Ditolak"];
+
+function saveDemoOrders() {
+  try {
+    localStorage.setItem(demoOrderStorageKey, JSON.stringify(demoOrders));
+  } catch {
+    // Akses penyimpanan browser dapat dinonaktifkan; data demo tetap berlaku selama halaman terbuka.
+  }
+}
+
+function restoreDemoOrders() {
+  try {
+    const savedOrders = JSON.parse(localStorage.getItem(demoOrderStorageKey) || "[]");
+    if (!Array.isArray(savedOrders)) return;
+    savedOrders.forEach((saved) => {
+      if (!saved || typeof saved.id !== "string" || !Number.isInteger(saved.tenantIndex) || !tenants[saved.tenantIndex] || !validOrderStatuses.includes(saved.status)) return;
+      const existing = demoOrders.find((order) => order.id === saved.id);
+      if (existing) existing.status = saved.status;
+      else if (Number.isFinite(Number(saved.amount))) demoOrders.unshift({
+        id: saved.id,
+        tenantIndex: saved.tenantIndex,
+        itemCount: Math.max(1, Number(saved.itemCount) || 1),
+        items: String(saved.items || "Pesanan demo"),
+        amount: Number(saved.amount),
+        status: saved.status,
+        service: String(saved.service || "Pesanan demo"),
+        time: String(saved.time || "--:--"),
+      });
+    });
+  } catch {
+    // Abaikan data demo lokal yang rusak dan gunakan pesanan contoh bawaan.
+  }
+}
+
+restoreDemoOrders();
+
+const monthlyDemoReports = [
+  { sales: 8450000, orders: 382, average: 22120, bestSeller: "Paket Geprek Keju Mozarella" },
+  { sales: 7280000, orders: 315, average: 23110, bestSeller: "Soto Ayam Spesial" },
+  { sales: 6120000, orders: 289, average: 21180, bestSeller: "Nasi Padang Rendang" },
+  { sales: 4800000, orders: 256, average: 18750, bestSeller: "Kopi Susu Gula Aren" },
 ];
 
 const menuItems = [
@@ -193,6 +254,13 @@ function pageLogin() {
       <button class="button outline-button" type="button" data-action="login-phone">${icon("phone")} Masuk dengan nomor HP / WhatsApp</button>
       <button class="button soft-button" type="button" data-action="login-guest">Lanjut jelajah sebagai tamu</button>
     </form>
+    <section class="role-entry card">
+      <div class="role-entry-title"><strong>Portal mitra</strong><span class="role-entry-demo">Demo</span></div>
+      <div class="button-row role-entry-actions">
+        <button class="button outline-button" type="button" data-action="open-tenant-dashboard">Pemilik tenant</button>
+        <button class="button green-button" type="button" data-action="open-manager-dashboard">Pengelola</button>
+      </div>
+    </section>
     <div class="feature-note">${icon("bell")}<div><strong>Fitur siap diambil</strong><span>Dapat notifikasi saat makanan selesai dimasak.</span></div></div>
     <p class="login-footnote">Dengan masuk, kamu menyetujui <strong>Ketentuan Layanan</strong> &amp; <strong>Kebijakan Privasi</strong> DiKantin.<br />Dibuat untuk ekosistem kantin kampus yang hemat waktu.</p>
   </main>`;
@@ -438,6 +506,130 @@ function pageSuccess() {
   </main>`;
 }
 
+function tenantOrdersFor(index) {
+  return demoOrders.filter((order) => order.tenantIndex === index);
+}
+
+function completedSales(orders) {
+  return orders.filter((order) => order.status === "Selesai").reduce((sum, order) => sum + order.amount, 0);
+}
+
+function activeOrders(orders) {
+  return orders.filter((order) => ["Menunggu", "Diproses", "Siap diambil"].includes(order.status));
+}
+
+function recordStudentDemoOrder() {
+  if (state.currentDemoOrderId && demoOrders.some((order) => order.id === state.currentDemoOrderId)) return;
+  const now = new Date();
+  const time = new Intl.DateTimeFormat("id-ID", { hour: "2-digit", minute: "2-digit", hour12: false }).format(now);
+  const items = menuItems.filter((item) => state.cart[item.id] > 0).map((item) => `${state.cart[item.id]} × ${item.name}`).join(" · ");
+  const order = {
+    id: `DKT-${String(now.getTime()).slice(-6)}`,
+    tenantIndex: state.tenantIndex,
+    itemCount: totalItems(),
+    items: items || "Pesanan mahasiswa",
+    amount: subtotal(),
+    status: "Menunggu",
+    service: state.mode === "dinein" ? `Makan di tempat · Meja ${state.table}` : "Ambil sendiri",
+    time,
+  };
+  state.currentDemoOrderId = order.id;
+  demoOrders.unshift(order);
+  saveDemoOrders();
+}
+
+function statusClass(status) {
+  return ({ Menunggu: "pending", Diproses: "working", "Siap diambil": "ready", Selesai: "done", Ditolak: "rejected" })[status] || "pending";
+}
+
+function orderActionButtons(order) {
+  if (order.status === "Menunggu") return `<button class="button compact-button green-button" type="button" data-action="update-order" data-id="${order.id}" data-next-status="Diproses">Terima pesanan</button><button class="text-link reject-order" type="button" data-action="update-order" data-id="${order.id}" data-next-status="Ditolak">Tolak</button>`;
+  if (order.status === "Diproses") return `<button class="button compact-button green-button" type="button" data-action="update-order" data-id="${order.id}" data-next-status="Siap diambil">Tandai siap</button>`;
+  if (order.status === "Siap diambil") return `<button class="button compact-button green-button" type="button" data-action="update-order" data-id="${order.id}" data-next-status="Selesai">Selesaikan pesanan</button>`;
+  return `<span class="tiny-text muted">Tidak ada tindakan</span>`;
+}
+
+function orderActivityCard(order, { showTenant = false, allowActions = false } = {}) {
+  const tenant = tenants[order.tenantIndex];
+  const canteen = canteens[tenant.canteenIndex];
+  return `<article class="dashboard-order card">
+    <div class="order-heading"><div><strong>${escapeHtml(order.id)}</strong><span>${escapeHtml(order.time)} · ${escapeHtml(order.service)}</span></div><span class="status-pill status-${statusClass(order.status)}">${escapeHtml(order.status)}</span></div>
+    ${showTenant ? `<div class="order-tenant-name">${escapeHtml(tenant.name)} <span>· ${escapeHtml(canteen.name)}</span></div>` : ""}
+    <p class="order-item-list">${escapeHtml(order.items)}</p>
+    <div class="order-bottom"><span>${order.itemCount} item</span><strong>${money(order.amount)}</strong></div>
+    ${allowActions ? `<div class="order-action-row">${orderActionButtons(order)}</div>` : ""}
+  </article>`;
+}
+
+function dashboardLogoutButton() {
+  return `<button class="text-link dashboard-logout" type="button" data-action="role-logout">Keluar</button>`;
+}
+
+function pageTenantDashboard() {
+  const tenantIndex = state.providerTenantIndex;
+  const isPremium = state.premiumTenantIndices.includes(tenantIndex);
+  const tenant = tenants[tenantIndex];
+  const canteen = canteens[tenant.canteenIndex];
+  const orders = tenantOrdersFor(tenantIndex);
+  const openOrders = activeOrders(orders);
+  const report = monthlyDemoReports[tenantIndex];
+  const tenantOptions = tenants.map((item, index) => `<option value="${index}" ${index === tenantIndex ? "selected" : ""}>${escapeHtml(item.name)}</option>`).join("");
+  const chart = [42, 58, 51, 72, 64, 83, 100].map((height, index) => `<div class="report-bar-column"><div class="report-bar" style="height:${height}%"></div><span>${["M1", "M2", "M3", "M4", "M5", "M6", "M7"][index]}</span></div>`).join("");
+  return `<main class="page dashboard-page">
+    ${header("Dashboard tenant", false, dashboardLogoutButton())}
+    <section class="dashboard-hero"><span class="eyebrow">Portal pemilik tenant</span><h1>Kelola pesanan tokomu</h1><p>Terima pesanan, perbarui status, dan pantau aktivitas jual beli harian.</p></section>
+    <label class="dashboard-select-label">Akun tenant demo<select class="dashboard-select" data-select="provider-tenant">${tenantOptions}</select></label>
+    <div class="dashboard-context">${icon("shop", "green")}<span><strong>${escapeHtml(tenant.name)}</strong><small>${escapeHtml(canteen.name)}</small></span></div>
+    <div class="demo-notice">${icon("shield", "green")}Data di halaman ini adalah simulasi untuk demo; perubahan status tidak mengirim pesanan ke sistem nyata.</div>
+    <section class="dashboard-metrics">
+      <article class="metric-card card"><span>Pesanan aktif</span><strong>${openOrders.length}</strong><small>Perlu diproses atau diserahkan</small></article>
+      <article class="metric-card card"><span>Penjualan selesai hari ini</span><strong>${money(completedSales(orders))}</strong><small>${orders.filter((order) => order.status === "Selesai").length} transaksi selesai</small></article>
+    </section>
+    <section class="dashboard-section"><div class="section-head"><h2>Aktivitas pesanan</h2><span class="tiny-text muted">${orders.length} pesanan demo</span></div>
+      <div class="dashboard-order-list">${orders.length ? orders.map((order) => orderActivityCard(order, { allowActions: true })).join("") : `<div class="card empty-state"><strong>Belum ada pesanan demo</strong></div>`}</div>
+    </section>
+    <section class="dashboard-section premium-section">
+      <div class="section-head"><h2>Laporan penjualan bulanan</h2><span class="premium-badge">${isPremium ? "PREMIUM AKTIF" : "PREMIUM"}</span></div>
+      ${isPremium ? `<div class="card premium-report"><div class="premium-report-top"><div><span>Total penjualan bulan ini</span><strong>${money(report.sales)}</strong></div><span class="report-trend">↑ 12%</span></div>
+        <div class="report-stats"><div><span>Pesanan</span><strong>${report.orders}</strong></div><div><span>Rata-rata transaksi</span><strong>${money(report.average)}</strong></div></div>
+        <div class="report-chart-heading"><strong>Tren penjualan</strong><span>7 minggu terakhir · data demo</span></div><div class="report-chart">${chart}</div>
+        <div class="best-seller-row"><span>Menu terlaris</span><strong>${escapeHtml(report.bestSeller)}</strong></div>
+        <button class="text-link premium-manage" type="button" data-action="deactivate-premium">Nonaktifkan mode premium demo</button>
+      </div>` : `<div class="card premium-lock-card"><div class="premium-lock-icon">${icon("lock")}</div><div class="premium-lock-copy"><strong>Laporan bulanan khusus Premium</strong><p>Fitur gratis tetap bisa menerima dan mengelola pesanan. Aktifkan Premium untuk melihat omzet bulanan, jumlah transaksi, tren penjualan, dan menu terlaris.</p></div><button class="button green-button" type="button" data-action="activate-premium">Aktifkan Premium (demo)</button><small>Simulasi saja, tidak ada pembayaran sungguhan.</small></div>`}
+    </section>
+  </main>`;
+}
+
+function pageManagerDashboard() {
+  const selected = state.managerTenantFilter;
+  const tenantIndices = selected === "semua" ? tenants.map((_, index) => index) : [Number(selected)];
+  const visibleTenants = tenantIndices.map((index) => tenants[index]).filter(Boolean);
+  const orders = demoOrders.filter((order) => selected === "semua" || String(order.tenantIndex) === selected);
+  const filterOptions = [`<option value="semua" ${selected === "semua" ? "selected" : ""}>Semua tenant</option>`, ...tenants.map((tenant, index) => `<option value="${index}" ${selected === String(index) ? "selected" : ""}>${escapeHtml(tenant.name)}</option>`)].join("");
+  return `<main class="page dashboard-page manager-page">
+    ${header("Dashboard pengelola", false, dashboardLogoutButton())}
+    <section class="dashboard-hero"><span class="eyebrow">Pusat transparansi kantin</span><h1>Aktivitas jual beli</h1><p>Pantau ringkasan transaksi dan status pesanan dari setiap tenant kantin.</p></section>
+    <div class="demo-notice">${icon("shield", "green")}Data tenant dan transaksi di dashboard ini adalah data demo, bukan laporan keuangan nyata.</div>
+    <label class="dashboard-select-label">Tampilkan aktivitas<select class="dashboard-select" data-select="manager-tenant">${filterOptions}</select></label>
+    <section class="dashboard-metrics manager-metrics">
+      <article class="metric-card card"><span>Penjualan selesai</span><strong>${money(completedSales(orders))}</strong><small>${orders.filter((order) => order.status === "Selesai").length} transaksi selesai</small></article>
+      <article class="metric-card card"><span>Pesanan aktif</span><strong>${activeOrders(orders).length}</strong><small>Menunggu, diproses, atau siap</small></article>
+      <article class="metric-card card"><span>Aktivitas pesanan</span><strong>${orders.length}</strong><small>Semua status, data demo</small></article>
+      <article class="metric-card card"><span>Tenant dipantau</span><strong>${visibleTenants.length}</strong><small>Dari ${tenants.length} tenant demo</small></article>
+    </section>
+    <section class="dashboard-section"><div class="section-head"><h2>Ringkasan tiap tenant</h2><span class="tiny-text muted">Pilih untuk melihat detail</span></div>
+      <div class="manager-tenant-list">${visibleTenants.map((tenant) => {
+        const index = tenants.indexOf(tenant);
+        const tenantActivity = tenantOrdersFor(index);
+        return `<button class="manager-tenant-card card" type="button" data-action="manager-focus-tenant" data-index="${index}"><span class="manager-tenant-mark">${escapeHtml(tenant.name.slice(0, 1))}</span><span class="manager-tenant-copy"><strong>${escapeHtml(tenant.name)}</strong><small>${escapeHtml(canteens[tenant.canteenIndex].name)} · ${tenantActivity.length} aktivitas</small></span><span class="manager-tenant-sales"><strong>${money(completedSales(tenantActivity))}</strong><small>penjualan selesai</small></span>${icon("arrow", "green")}</button>`;
+      }).join("")}</div>
+    </section>
+    <section class="dashboard-section"><div class="section-head"><h2>Rincian aktivitas</h2><span class="tiny-text muted">${orders.length} catatan demo</span></div>
+      <div class="dashboard-order-list">${orders.length ? [...orders].sort((a, b) => b.id.localeCompare(a.id)).map((order) => orderActivityCard(order, { showTenant: true })).join("") : `<div class="card empty-state"><strong>Belum ada aktivitas</strong></div>`}</div>
+    </section>
+  </main>`;
+}
+
 function pageProfile() {
   return `<main class="page profile-page">
     ${header("Profil pengguna", true)}
@@ -479,6 +671,8 @@ function render() {
     case "payment": page = pagePayment(); activeNav = "tracking"; break;
     case "tracking": page = pageTracking(); activeNav = "tracking"; break;
     case "profile": page = pageProfile(); activeNav = "profile"; break;
+    case "tenant-dashboard": page = pageTenantDashboard(); hasNav = false; break;
+    case "manager-dashboard": page = pageManagerDashboard(); hasNav = false; break;
     case "success": page = pageSuccess(); hasNav = false; break;
     default: page = pageLogin(); hasNav = false;
   }
@@ -519,6 +713,14 @@ root.addEventListener("submit", (event) => {
   }
 });
 
+root.addEventListener("change", (event) => {
+  const select = event.target.closest("[data-select]");
+  if (!select) return;
+  if (select.dataset.select === "provider-tenant") state.providerTenantIndex = Number(select.value) || 0;
+  if (select.dataset.select === "manager-tenant") state.managerTenantFilter = select.value;
+  render();
+});
+
 root.addEventListener("click", (event) => {
   const button = event.target.closest("[data-action]");
   if (!button) return;
@@ -526,6 +728,9 @@ root.addEventListener("click", (event) => {
   switch (action) {
     case "back": goBack(); break;
     case "login-guest": go("home"); break;
+    case "open-tenant-dashboard": state.history = []; go("tenant-dashboard"); break;
+    case "open-manager-dashboard": state.history = []; go("manager-dashboard"); break;
+    case "role-logout": state.history = []; state.screen = "login"; render(); window.scrollTo(0, 0); break;
     case "login-phone": showToast("Demo: masuk dengan nomor HP akan tersedia di aplikasi penuh."); break;
     case "forgot": showToast("Demo: hubungi pengelola kampus untuk mengatur ulang kata sandi."); break;
     case "choose-mode": state.mode = button.dataset.mode; resetTenantPicker(); go("canteens"); break;
@@ -587,6 +792,7 @@ root.addEventListener("click", (event) => {
     case "menu-filter": state.menuFilter = button.dataset.filter; render(); break;
     case "add-item": {
       const id = button.dataset.id;
+      state.currentDemoOrderId = null;
       state.cart[id] = (state.cart[id] || 0) + 1;
       render();
       showToast("Menu ditambahkan ke keranjang.");
@@ -595,6 +801,7 @@ root.addEventListener("click", (event) => {
     case "open-cart": go("cart"); break;
     case "quantity": {
       const id = button.dataset.id;
+      state.currentDemoOrderId = null;
       const qty = (state.cart[id] || 0) + Number(button.dataset.delta);
       if (qty <= 0) delete state.cart[id]; else state.cart[id] = qty;
       render();
@@ -605,7 +812,7 @@ root.addEventListener("click", (event) => {
       if (totalItems() === 0) { showToast("Tambahkan minimal satu menu sebelum membayar."); break; }
       go("payment");
       break;
-    case "payment-success": go("tracking"); break;
+    case "payment-success": recordStudentDemoOrder(); go("tracking"); break;
     case "complete-order": go("success"); break;
     case "rating": {
       const rating = button.dataset.rating;
@@ -616,6 +823,18 @@ root.addEventListener("click", (event) => {
     case "submit-review": showToast("Terima kasih, ulasanmu tersimpan di demo ini."); break;
     case "receipt": showToast("E-receipt demo: #DKT-2026-98124 · " + money(totalPayable())); break;
     case "support": showToast("Demo: tenant dapat dihubungi melalui fitur bantuan aplikasi."); break;
+    case "activate-premium": state.premiumTenantIndices = [...new Set([...state.premiumTenantIndices, state.providerTenantIndex])]; render(); showToast("Premium demo aktif. Laporan bulanan terbuka."); break;
+    case "deactivate-premium": state.premiumTenantIndices = state.premiumTenantIndices.filter((index) => index !== state.providerTenantIndex); render(); showToast("Mode Premium demo dinonaktifkan."); break;
+    case "update-order": {
+      const order = demoOrders.find((item) => item.id === button.dataset.id);
+      if (!order) break;
+      order.status = button.dataset.nextStatus;
+      saveDemoOrders();
+      render();
+      showToast(`Status ${order.id} diperbarui: ${order.status}.`);
+      break;
+    }
+    case "manager-focus-tenant": state.managerTenantFilter = button.dataset.index; render(); window.scrollTo(0, 0); break;
     default: break;
   }
 });
